@@ -9,8 +9,9 @@ An exploratory project to implement ray-casting based volume rendering in C++/Wi
 | Target | Implementation Status |
 |  ----  | ----  |
 | Navigation View with View Model | :white_check_mark: Finish |
+| Auto select first item of Navigation View | :black_square_button: Waiting |
 | Mica effects | :white_check_mark: Finish |
-| Base DirectX 12 integration | :black_square_button: Waiting |
+| Basic DirectX 12 integration | :black_square_button: Waiting |
 | Ray-casting shaders | :black_square_button: Waiting |
 
 ## Current screenshot
