@@ -1,0 +1,8 @@
+import "NavigationCategory.idl";
+
+namespace Dx12VolumeRender{
+    runtimeclass NavigationCategoryViewModel {
+        NavigationCategoryViewModel();
+        Windows.Foundation.Collections.IObservableVector<NavigationCategory> NavigationCategories{ get; };
+    }
+}

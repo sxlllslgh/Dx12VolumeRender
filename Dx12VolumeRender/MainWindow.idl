@@ -1,0 +1,9 @@
+import "NavigationCategoryViewModel.idl";
+
+namespace Dx12VolumeRender {
+    [default_interface]
+    runtimeclass MainWindow : Microsoft.UI.Xaml.Window {
+        MainWindow();
+        NavigationCategoryViewModel MainWindowNavigationCategoryViewModel { get; };
+    }
+}

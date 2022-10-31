@@ -1,0 +1,8 @@
+namespace Dx12VolumeRender{
+    runtimeclass NavigationCategory {
+        NavigationCategory(String name, String tooltip, String icon);
+        String Name{ get; };
+        String Tooltip{ get; };
+        String Icon{ get; };
+    }
+}
