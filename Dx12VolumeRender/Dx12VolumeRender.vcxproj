@@ -114,6 +114,8 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="DirectX12Wrapper.h" />
     <ClInclude Include="NavigationCategory.h">
       <DependentUpon>NavigationCategory.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -142,6 +144,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DirectX12Wrapper.cpp" />
     <ClCompile Include="NavigationCategory.cpp">
       <DependentUpon>NavigationCategory.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -170,6 +173,7 @@
       <SubType>Code</SubType>
       <DependentUpon>App.xaml</DependentUpon>
     </Midl>
+    <Midl Include="d3dx12.idl" />
     <Midl Include="MainWindow.idl">
       <SubType>Code</SubType>
       <DependentUpon>MainWindow.xaml</DependentUpon>

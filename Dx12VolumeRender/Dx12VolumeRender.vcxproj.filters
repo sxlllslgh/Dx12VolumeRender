@@ -12,17 +12,21 @@
     <Midl Include="MainWindow.idl" />
     <Midl Include="NavigationCategory.idl" />
     <Midl Include="NavigationCategoryViewModel.idl" />
+    <Midl Include="d3dx12.idl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="NavigationCategory.cpp" />
     <ClCompile Include="NavigationCategoryViewModel.cpp" />
+    <ClCompile Include="DirectX12Wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="NavigationCategory.h" />
     <ClInclude Include="NavigationCategoryViewModel.h" />
+    <ClInclude Include="DirectX12Wrapper.h" />
+    <ClInclude Include="d3dx12.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">

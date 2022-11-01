@@ -6,6 +6,12 @@
 
 #undef GetCurrentTime
 
+#include <d3d12.h>
+#include <dxgi.h>
+#include <dxgi1_6.h>
+#include <dxgidebug.h>
+#include "d3dx12.h"
+
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
@@ -27,5 +33,3 @@
 #include <winrt/Microsoft.UI.Xaml.Shapes.h>
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <wil/cppwinrt_helpers.h>
-
-#include <d3d12.h>
