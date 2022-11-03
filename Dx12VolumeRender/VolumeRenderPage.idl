@@ -1,8 +1,6 @@
-namespace Dx12VolumeRender
-{
+namespace Dx12VolumeRender {
     [default_interface]
-    runtimeclass VolumeRenderPage : Microsoft.UI.Xaml.Controls.Page
-    {
+    runtimeclass VolumeRenderPage : Microsoft.UI.Xaml.Controls.Page {
         VolumeRenderPage();
     }
 }

@@ -1,4 +1,8 @@
 ﻿#pragma once
+
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
 #include <windows.h>
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
@@ -9,8 +13,11 @@
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_6.h>
-#include <dxgidebug.h>
 #include "d3dx12.h"
+
+#ifdef _DEBUG
+#include <dxgidebug.h>
+#endif
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>

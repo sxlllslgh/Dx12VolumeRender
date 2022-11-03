@@ -26,17 +26,17 @@ namespace MyDirectX12 {
         DirectX12Wrapper& operator= (DirectX12Wrapper const&) = delete;
 
         void CreateDeviceResources();
-        void CreateWindowSizeDependentResources();
-        void SetWindow(IUnknown* window, int width, int height, DXGI_MODE_ROTATION rotation) noexcept;
-        bool WindowSizeChanged(int width, int height, DXGI_MODE_ROTATION rotation);
-        void ValidateDevice();
-        void HandleDeviceLost();
-        void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept { deviceNotify = deviceNotify; }
-        void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT,
-            D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET);
-        void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
+        //void CreateWindowSizeDependentResources();
+        //void SetWindow(IUnknown* window, int width, int height, DXGI_MODE_ROTATION rotation) noexcept;
+        //bool WindowSizeChanged(int width, int height, DXGI_MODE_ROTATION rotation);
+        //void ValidateDevice();
+        //void HandleDeviceLost();
+        //void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept { deviceNotify = deviceNotify; }
+        //void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT,
+        //    D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET);
+        //void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
         void WaitForGpu() noexcept;
-        void UpdateColorSpace();
+        //void UpdateColorSpace();
 
         // Device Accessors.
         RECT GetOutputSize() const noexcept { return outputSize; }
@@ -72,7 +72,7 @@ namespace MyDirectX12 {
         }
 
     private:
-        void MoveToNextFrame();
+        //void MoveToNextFrame();
         void GetAdapter(IDXGIAdapter1** ppAdapter);
 
         static constexpr size_t MAX_BACK_BUFFER_COUNT = 3;

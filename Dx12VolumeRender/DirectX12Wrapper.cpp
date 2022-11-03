@@ -1,6 +1,58 @@
 #include "pch.h"
 #include "DirectX12Wrapper.h"
 
+// Constants used to calculate screen rotations
+namespace ScreenRotation {
+    // 0-degree Z-rotation
+    static const DirectX::XMFLOAT4X4 Rotation0(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
+
+    // 90-degree Z-rotation
+    static const DirectX::XMFLOAT4X4 Rotation90(
+        0.0f, 1.0f, 0.0f, 0.0f,
+        -1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
+
+    // 180-degree Z-rotation
+    static const DirectX::XMFLOAT4X4 Rotation180(
+        -1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
+
+    // 270-degree Z-rotation
+    static const DirectX::XMFLOAT4X4 Rotation270(
+        0.0f, -1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
+}
+
+namespace {
+    inline DXGI_FORMAT NoSRGB(DXGI_FORMAT fmt) noexcept {
+        switch (fmt) {
+        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:   return DXGI_FORMAT_R8G8B8A8_UNORM;
+        case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8A8_UNORM;
+        case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8X8_UNORM;
+        default:                                return fmt;
+        }
+    }
+
+    inline long ComputeIntersectionArea(
+        long ax1, long ay1, long ax2, long ay2,
+        long bx1, long by1, long bx2, long by2) noexcept {
+        return std::max(0l, std::min(ax2, bx2) - std::max(ax1, bx1)) * std::max(0l, std::min(ay2, by2) - std::max(ay1, by1));
+    }
+}
+
 MyDirectX12::DirectX12Wrapper::DirectX12Wrapper(DXGI_FORMAT backBufferFormat, DXGI_FORMAT depthBufferFormat, UINT backBufferCount, D3D_FEATURE_LEVEL minFeatureLevel, unsigned int flags) noexcept(false) : backBufferIndex(0), fenceValues{}, rtvDescriptorSize(0), screenViewport{}, scissorRect{}, backBufferFormat(backBufferFormat), depthBufferFormat(depthBufferFormat), backBufferCount(backBufferCount), d3dMinFeatureLevel(minFeatureLevel), window(nullptr), d3dFeatureLevel(D3D_FEATURE_LEVEL_11_0), rotation(DXGI_MODE_ROTATION_IDENTITY), dxgiFactoryFlags(0), outputSize{ 0, 0, 1, 1 }, orientationTransform3D(ScreenRotation::Rotation0), colorSpace(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709), options(flags), deviceNotify(nullptr) {
     if (backBufferCount < 2 || backBufferCount > MAX_BACK_BUFFER_COUNT) {
         throw std::out_of_range("invalid backBufferCount");
@@ -172,4 +224,91 @@ void MyDirectX12::DirectX12Wrapper::CreateDeviceResources() {
     if (!fenceEvent) {
         throw std::system_error(std::error_code(static_cast<int>(GetLastError()), std::system_category()), "CreateEventEx");
     }
+}
+
+void MyDirectX12::DirectX12Wrapper::WaitForGpu() noexcept {
+    if (commandQueue && fence && fenceEvent) {
+        // Schedule a Signal command in the GPU queue.
+        const UINT64 fenceValue = fenceValues[backBufferIndex];
+        if (SUCCEEDED(commandQueue->Signal(fence.get(), fenceValue))) {
+            // Wait until the Signal has been processed.
+            if (SUCCEEDED(fence->SetEventOnCompletion(fenceValue, &fenceEvent))) {
+                std::ignore = WaitForSingleObjectEx(&fenceEvent, INFINITE, FALSE);
+
+                // Increment the fence value for the current frame.
+                fenceValues[backBufferIndex]++;
+            }
+        }
+    }
+}
+
+void MyDirectX12::DirectX12Wrapper::GetAdapter(IDXGIAdapter1** ppAdapter) {
+    *ppAdapter = nullptr;
+
+    winrt::com_ptr<IDXGIAdapter1> adapter;
+
+    winrt::com_ptr<IDXGIFactory6> factory6;
+    dxgiFactory.try_as<IDXGIFactory6>();
+    for (UINT adapterIndex = 0; factory6->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(adapter.put())) >= 0; adapterIndex++) {
+        DXGI_ADAPTER_DESC1 desc;
+        winrt::check_hresult(adapter->GetDesc1(&desc));
+
+        if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+            // Don't select the Basic Render Driver adapter.
+            continue;
+        }
+
+        // Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
+        if (SUCCEEDED(D3D12CreateDevice(adapter.get(), d3dMinFeatureLevel, __uuidof(ID3D12Device), nullptr))) {
+#ifdef _DEBUG
+            wchar_t buff[256] = {};
+            swprintf_s(buff, L"Direct3D Adapter (%u): VID:%04X, PID:%04X - %ls\n", adapterIndex, desc.VendorId, desc.DeviceId, desc.Description);
+            OutputDebugStringW(buff);
+#endif
+            break;
+        }
+    }
+
+    if (!adapter) {
+        for (UINT adapterIndex = 0;
+            SUCCEEDED(dxgiFactory->EnumAdapters1(
+                adapterIndex,
+                adapter.put()));
+            ++adapterIndex) {
+            DXGI_ADAPTER_DESC1 desc;
+            winrt::check_hresult(adapter->GetDesc1(&desc));
+
+            if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+                // Don't select the Basic Render Driver adapter.
+                continue;
+            }
+
+            // Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
+            if (SUCCEEDED(D3D12CreateDevice(adapter.get(), d3dMinFeatureLevel, __uuidof(ID3D12Device), nullptr))) {
+#ifdef _DEBUG
+                wchar_t buff[256] = {};
+                swprintf_s(buff, L"Direct3D Adapter (%u): VID:%04X, PID:%04X - %ls\n", adapterIndex, desc.VendorId, desc.DeviceId, desc.Description);
+                OutputDebugStringW(buff);
+#endif
+                break;
+            }
+        }
+    }
+
+#if !defined(NDEBUG)
+    if (!adapter) {
+        // Try WARP12 instead
+        if (dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(adapter.put())) < 0) {
+            throw std::runtime_error("WARP12 not available. Enable the 'Graphics Tools' optional feature");
+        }
+
+        OutputDebugStringA("Direct3D Adapter - WARP12\n");
+    }
+#endif
+
+    if (!adapter) {
+        throw std::runtime_error("No Direct3D 12 device found");
+    }
+
+    *ppAdapter = adapter.detach();
 }

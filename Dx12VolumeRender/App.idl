@@ -1,3 +1,1 @@
-namespace Dx12VolumeRender
-{
-}
+namespace Dx12VolumeRender {}

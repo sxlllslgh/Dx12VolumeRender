@@ -12,7 +12,6 @@
     <Midl Include="MainWindow.idl" />
     <Midl Include="NavigationCategory.idl" />
     <Midl Include="NavigationCategoryViewModel.idl" />
-    <Midl Include="d3dx12.idl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
