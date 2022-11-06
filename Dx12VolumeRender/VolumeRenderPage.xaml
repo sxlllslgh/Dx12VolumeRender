@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Loaded="Page_Loaded">
+    Loaded="OnPageLoaded">
     <Grid Padding="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -18,6 +18,6 @@
         </Grid.RowDefinitions>
         <SwapChainPanel x:Name="displayArea" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"/>
         <ProgressBar x:Name="operationProgress" Grid.Column="0" Grid.Row="1" Value="100" />
-        <Button x:Name="readFile" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Margin="10">读取体数据文件</Button>
+        <Button x:Name="readFile" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Margin="10" Click="OnReadFileClick">读取体数据文件</Button>
     </Grid>
 </Page>

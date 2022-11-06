@@ -66,8 +66,7 @@ void winrt::Dx12VolumeRender::implementation::MainWindow::SetupSystemBackdropCon
     if (rootElement != nullptr) {
         themeChangedRevoker = rootElement.ActualThemeChanged(auto_revoke,
             [&](auto&&, auto&&) {
-                systemBackdropConfiguration.Theme(
-                    ConvertToSystemBackdropTheme(rootElement.ActualTheme()));
+                systemBackdropConfiguration.Theme(ConvertToSystemBackdropTheme(rootElement.ActualTheme()));
             });
 
         systemBackdropConfiguration.Theme(ConvertToSystemBackdropTheme(rootElement.ActualTheme()));

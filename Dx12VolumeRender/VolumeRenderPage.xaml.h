@@ -8,10 +8,15 @@ namespace winrt::Dx12VolumeRender::implementation {
     struct VolumeRenderPage : VolumeRenderPageT<VolumeRenderPage> {
     private:
         std::shared_ptr<MyDirectX12::DeviceResources> deviceResources;
+        winrt::Microsoft::UI::Xaml::Window hostWindow{ nullptr };
+        HWND hostWindowHandle{ nullptr };
+
+        Windows::Storage::StorageFile selectedFile{ nullptr };
 
     public:
         VolumeRenderPage();
-        void Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        void OnPageLoaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        Windows::Foundation::IAsyncAction OnReadFileClick(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
     };
 }
 
