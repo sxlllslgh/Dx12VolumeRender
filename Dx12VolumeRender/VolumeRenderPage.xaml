@@ -5,9 +5,17 @@
     xmlns:local="using:Dx12VolumeRender"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
-    <RelativePanel>
-        <SwapChainPanel x:Name="displayArea" Width="500" Height="500" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True" />
-        <TextBlock RelativePanel.AlignRightWith="displayArea">体渲染</TextBlock>
-    </RelativePanel>
+    mc:Ignorable="d"
+    Loaded="Page_Loaded">
+    <Grid Padding="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <SwapChainPanel x:Name="displayArea" Grid.Column="0" Grid.Row="0"/>
+        <Button x:Name="readFile" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Margin="10">读取体数据文件</Button>
+    </Grid>
 </Page>

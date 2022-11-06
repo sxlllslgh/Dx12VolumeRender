@@ -18,13 +18,13 @@
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="NavigationCategory.cpp" />
     <ClCompile Include="NavigationCategoryViewModel.cpp" />
-    <ClCompile Include="DirectX12Wrapper.cpp" />
+    <ClCompile Include="DeviceResources.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="NavigationCategory.h" />
     <ClInclude Include="NavigationCategoryViewModel.h" />
-    <ClInclude Include="DirectX12Wrapper.h" />
+    <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="d3dx12.h" />
   </ItemGroup>
   <ItemGroup>

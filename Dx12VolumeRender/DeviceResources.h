@@ -1,4 +1,5 @@
 #pragma once
+
 namespace MyDirectX12 {
     // Provides an interface for an application that owns DeviceResources to be notified of the device being lost or created.
     interface IDeviceNotify {
@@ -6,40 +7,39 @@ namespace MyDirectX12 {
         virtual void OnDeviceRestored() = 0;
 
     protected:
-    ~IDeviceNotify() = default;
+        ~IDeviceNotify() = default;
     };
 
     // Controls all the DirectX device resources.
-    class DirectX12Wrapper {
+    class DeviceResources {
     public:
         static constexpr unsigned int c_AllowTearing = 0x1;
         static constexpr unsigned int c_EnableHDR = 0x2;
         static constexpr unsigned int c_ReverseDepth = 0x4;
 
-        DirectX12Wrapper(DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT, UINT backBufferCount = 2, D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_11_0, unsigned int flags = 0) noexcept(false);
-        ~DirectX12Wrapper();
+        DeviceResources(winrt::Microsoft::UI::Xaml::Window const& window, DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT, UINT backBufferCount = 2, D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_11_0, unsigned int flags = 0) noexcept(false);
+        ~DeviceResources();
 
-        DirectX12Wrapper(DirectX12Wrapper&&) = default;
-        DirectX12Wrapper& operator= (DirectX12Wrapper&&) = default;
+        DeviceResources(DeviceResources&&) = default;
+        DeviceResources& operator= (DeviceResources&&) = default;
 
-        DirectX12Wrapper(DirectX12Wrapper const&) = delete;
-        DirectX12Wrapper& operator= (DirectX12Wrapper const&) = delete;
+        DeviceResources(DeviceResources const&) = delete;
+        DeviceResources& operator= (DeviceResources const&) = delete;
 
         void CreateDeviceResources();
-        //void CreateWindowSizeDependentResources();
+        void SetSwapChainPanel(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& swapChainPanel, double const& deviceDpi);
+        void CreateWindowSizeDependentResources();
         //void SetWindow(IUnknown* window, int width, int height, DXGI_MODE_ROTATION rotation) noexcept;
-        //bool WindowSizeChanged(int width, int height, DXGI_MODE_ROTATION rotation);
         //void ValidateDevice();
-        //void HandleDeviceLost();
+        void HandleDeviceLost();
         //void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept { deviceNotify = deviceNotify; }
-        //void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT,
-        //    D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET);
+        //void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET);
         //void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
         void WaitForGpu() noexcept;
-        //void UpdateColorSpace();
+        void UpdateColorSpace();
 
         // Device Accessors.
-        RECT GetOutputSize() const noexcept { return outputSize; }
+        winrt::Windows::Foundation::Size GetOutputSize() const noexcept { return outputSize; }
         DXGI_MODE_ROTATION GetRotation() const noexcept { return rotation; }
 
         // Direct3D Accessors.
@@ -47,10 +47,10 @@ namespace MyDirectX12 {
         auto                        GetSwapChain() const noexcept { return swapChain.get(); }
         auto                        GetDXGIFactory() const noexcept { return dxgiFactory.get(); }
         D3D_FEATURE_LEVEL           GetDeviceFeatureLevel() const noexcept { return d3dFeatureLevel; }
-        ID3D12Resource* GetRenderTarget() const noexcept { return renderTargets[backBufferIndex].get(); }
-        ID3D12Resource* GetDepthStencil() const noexcept { return depthStencil.get(); }
-        ID3D12CommandQueue* GetCommandQueue() const noexcept { return commandQueue.get(); }
-        ID3D12CommandAllocator* GetCommandAllocator() const noexcept { return commandAllocators[backBufferIndex].get(); }
+        ID3D12Resource*             GetRenderTarget() const noexcept { return renderTargets[backBufferIndex].get(); }
+        ID3D12Resource*             GetDepthStencil() const noexcept { return depthStencil.get(); }
+        ID3D12CommandQueue*         GetCommandQueue() const noexcept { return commandQueue.get(); }
+        ID3D12CommandAllocator*     GetCommandAllocator() const noexcept { return commandAllocators[backBufferIndex].get(); }
         auto                        GetCommandList() const noexcept { return commandList.get(); }
         DXGI_FORMAT                 GetBackBufferFormat() const noexcept { return backBufferFormat; }
         DXGI_FORMAT                 GetDepthBufferFormat() const noexcept { return depthBufferFormat; }
@@ -75,6 +75,9 @@ namespace MyDirectX12 {
         //void MoveToNextFrame();
         void GetAdapter(IDXGIAdapter1** ppAdapter);
 
+        DXGI_MODE_ROTATION ComputeDisplayRotation();
+        void UpdateRenderTargetSize();
+
         static constexpr size_t MAX_BACK_BUFFER_COUNT = 3;
 
         UINT                                        backBufferIndex;
@@ -90,6 +93,9 @@ namespace MyDirectX12 {
         winrt::com_ptr<IDXGISwapChain3>             swapChain;
         winrt::com_ptr<ID3D12Resource>              renderTargets[MAX_BACK_BUFFER_COUNT];
         winrt::com_ptr<ID3D12Resource>              depthStencil;
+
+        // XAML composition reference.
+        winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel swapChainPanel;
 
         // Presentation fence objects.
         winrt::com_ptr<ID3D12Fence>                 fence;
@@ -110,11 +116,23 @@ namespace MyDirectX12 {
         D3D_FEATURE_LEVEL                                   d3dMinFeatureLevel;
 
         // Cached device properties.
-        IUnknown* window;
-        D3D_FEATURE_LEVEL                                   d3dFeatureLevel;
+        //winrt::Windows::Foundation::Rect                            windowBounds;
+        winrt::Microsoft::UI::Xaml::Window                          window;
+        D3D_FEATURE_LEVEL                                           d3dFeatureLevel;
+        winrt::Windows::Foundation::Size                            logicalSize;
+        winrt::Windows::Foundation::Size                            d3dRenderTargetSize;
+        ABI::Windows::Graphics::Display::DisplayOrientations	    nativeOrientation;
+        ABI::Windows::Graphics::Display::DisplayOrientations	    currentOrientation;
+        double											dpi;
+        float											compositionScaleX;
+        float											compositionScaleY;
         DXGI_MODE_ROTATION                                  rotation;
         DWORD                                               dxgiFactoryFlags;
-        RECT                                                outputSize;
+        winrt::Windows::Foundation::Size                    outputSize;
+
+        double											effectiveDpi;
+        float											effectiveCompositionScaleX;
+        float											effectiveCompositionScaleY;
 
         // Transforms used for display orientation.
         DirectX::XMFLOAT4X4                                 orientationTransform3D;
@@ -128,4 +146,9 @@ namespace MyDirectX12 {
         // The IDeviceNotify can be held directly as it owns the DeviceResources.
         IDeviceNotify* deviceNotify;
     };
+
+    inline float ConvertDipsToPixels(float dips, float dpi) {
+        static const float dipsPerInch = 96.0f;
+        return floorf(dips * dpi / dipsPerInch + 0.5f); // 舍入到最接近的整数。
+    }
 }

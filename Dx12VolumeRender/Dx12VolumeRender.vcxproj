@@ -120,7 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dx12.h" />
-    <ClInclude Include="DirectX12Wrapper.h" />
+    <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="NavigationCategory.h">
       <DependentUpon>NavigationCategory.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -149,7 +149,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DirectX12Wrapper.cpp" />
+    <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="NavigationCategory.cpp">
       <DependentUpon>NavigationCategory.idl</DependentUpon>
       <SubType>Code</SubType>
