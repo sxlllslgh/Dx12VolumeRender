@@ -14,8 +14,10 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <SwapChainPanel x:Name="displayArea" Grid.Column="0" Grid.Row="0"/>
-        <Button x:Name="readFile" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Margin="10">读取体数据文件</Button>
+        <SwapChainPanel x:Name="displayArea" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"/>
+        <ProgressBar x:Name="operationProgress" Grid.Column="0" Grid.Row="1" Value="100" />
+        <Button x:Name="readFile" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Margin="10">读取体数据文件</Button>
     </Grid>
 </Page>
