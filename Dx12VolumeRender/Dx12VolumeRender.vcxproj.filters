@@ -26,6 +26,7 @@
     <ClInclude Include="NavigationCategoryViewModel.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="VolumeData.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">

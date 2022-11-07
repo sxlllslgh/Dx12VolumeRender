@@ -6,6 +6,8 @@
 
 #include "App.xaml.h"
 
+#include "VolumeData.hpp"
+
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
 
@@ -36,7 +38,14 @@ Windows::Foundation::IAsyncAction winrt::Dx12VolumeRender::implementation::Volum
     if (selectedFile != nullptr) {
         auto fileBuffer = co_await Windows::Storage::FileIO::ReadBufferAsync(selectedFile);
         auto fileBytes = fileBuffer.data();
-        int frameCounts;
-        std::memcpy(&frameCounts, fileBytes, sizeof(int));
+        VolumeData volumeData;
+        volumeData.readFromBytes<int>(&fileBytes, volumeData.frameCount);
+        volumeData.readFromBytes<int>(&fileBytes, volumeData.channels);
+        volumeData.readFromBytes<int>(&fileBytes, volumeData.frameWidth);
+        volumeData.readFromBytes<int>(&fileBytes, volumeData.frameHeight);
+        volumeData.readFromBytes<double>(&fileBytes, volumeData.widthPerPixel);
+        volumeData.readFromBytes<double>(&fileBytes, volumeData.heightPerPixel);
+        volumeData.readMatrix4dFromBytes(&fileBytes, volumeData.matItoF);
+        
     }
 }

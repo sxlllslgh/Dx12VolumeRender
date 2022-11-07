@@ -13,6 +13,8 @@ namespace winrt::Dx12VolumeRender::implementation {
 
         Windows::Storage::StorageFile selectedFile{ nullptr };
 
+        int frameCounts = -1;
+
     public:
         VolumeRenderPage();
         void OnPageLoaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
