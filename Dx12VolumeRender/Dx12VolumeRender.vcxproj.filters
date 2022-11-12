@@ -19,14 +19,27 @@
     <ClCompile Include="NavigationCategory.cpp" />
     <ClCompile Include="NavigationCategoryViewModel.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="VolumeRenderPipline.cpp">
+      <Filter>VolumeRender</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="NavigationCategory.h" />
     <ClInclude Include="NavigationCategoryViewModel.h" />
-    <ClInclude Include="DeviceResources.h" />
-    <ClInclude Include="d3dx12.h" />
     <ClInclude Include="VolumeData.hpp" />
+    <ClInclude Include="DeviceResources.h">
+      <Filter>DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeRenderPipline.h">
+      <Filter>VolumeRender</Filter>
+    </ClInclude>
+    <ClInclude Include="StepTimer.hpp">
+      <Filter>DirectX12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
@@ -54,6 +67,12 @@
   <ItemGroup>
     <Filter Include="Assets">
       <UniqueIdentifier>{db3731a9-9efa-48c4-9a38-e03f8ac447cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX12">
+      <UniqueIdentifier>{4cc4ee5b-b77e-4d84-87ce-a45d68c3f4ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VolumeRender">
+      <UniqueIdentifier>{31fb8d44-8a8e-49d2-9f22-87b2f77e4ae1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

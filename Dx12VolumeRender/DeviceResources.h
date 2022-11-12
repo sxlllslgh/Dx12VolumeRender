@@ -1,4 +1,5 @@
 #pragma once
+#include <bitset>
 
 namespace MyDirectX12 {
     // Provides an interface for an application that owns DeviceResources to be notified of the device being lost or created.
@@ -13,9 +14,9 @@ namespace MyDirectX12 {
     // Controls all the DirectX device resources.
     class DeviceResources {
     public:
-        static constexpr unsigned int c_AllowTearing = 0x1;
-        static constexpr unsigned int c_EnableHDR = 0x2;
-        static constexpr unsigned int c_ReverseDepth = 0x4;
+        static constexpr std::bitset<1> allowTearing = 0x1;
+        static constexpr std::bitset<1> enableHDR = 0x2;
+        static constexpr std::bitset<1> reverseDepth = 0x4;
 
         DeviceResources(winrt::Microsoft::UI::Xaml::Window const& window, DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT, UINT backBufferCount = 2, D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_11_0, unsigned int flags = 0) noexcept(false);
         ~DeviceResources();
@@ -30,11 +31,11 @@ namespace MyDirectX12 {
         void SetSwapChainPanel(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& swapChainPanel, double const& deviceDpi);
         void CreateWindowSizeDependentResources();
         //void SetWindow(IUnknown* window, int width, int height, DXGI_MODE_ROTATION rotation) noexcept;
-        //void ValidateDevice();
+        void ValidateDevice();
         void HandleDeviceLost();
-        //void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept { deviceNotify = deviceNotify; }
-        //void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET);
-        //void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
+        void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept { deviceNotify = deviceNotify; }
+        void Prepare(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET);
+        void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
         void WaitForGpu() noexcept;
         void UpdateColorSpace();
 
@@ -60,7 +61,7 @@ namespace MyDirectX12 {
         UINT                        GetBackBufferCount() const noexcept { return backBufferCount; }
         DirectX::XMFLOAT4X4         GetOrientationTransform3D() const noexcept { return orientationTransform3D; }
         DXGI_COLOR_SPACE_TYPE       GetColorSpace() const noexcept { return colorSpace; }
-        unsigned int                GetDeviceOptions() const noexcept { return options; }
+        std::bitset<1>              GetDeviceOptions() const noexcept { return options; }
 
         CD3DX12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const noexcept {
             return CD3DX12_CPU_DESCRIPTOR_HANDLE(
@@ -72,7 +73,7 @@ namespace MyDirectX12 {
         }
 
     private:
-        //void MoveToNextFrame();
+        void MoveToNextFrame();
         void GetAdapter(IDXGIAdapter1** ppAdapter);
 
         DXGI_MODE_ROTATION ComputeDisplayRotation();
@@ -141,7 +142,7 @@ namespace MyDirectX12 {
         DXGI_COLOR_SPACE_TYPE                               colorSpace;
 
         // DeviceResources options (see flags above)
-        unsigned int                                        options;
+        std::bitset<1>                                       options;
 
         // The IDeviceNotify can be held directly as it owns the DeviceResources.
         IDeviceNotify* deviceNotify;

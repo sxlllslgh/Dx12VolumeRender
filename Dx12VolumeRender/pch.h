@@ -11,9 +11,11 @@
 
 #undef GetCurrentTime
 
+#include <concrt.h>
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_6.h>
+#include <pix.h>
 #include "d3dx12.h"
 
 #ifdef _DEBUG
@@ -23,8 +25,10 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
+#include <winrt/Windows.Graphics.Display.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Storage.Pickers.h>
+#include <winrt/Windows.System.Threading.h>
 #include <winrt/Windows.UI.Core.h>
 #include <Windows.UI.Composition.Interop.h>
 #include <winrt/Windows.UI.Composition.h>
@@ -45,3 +49,4 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <wil/cppwinrt_helpers.h>
 #include <microsoft.ui.xaml.media.dxinterop.h>
+#include <windows.graphics.display.interop.h>
