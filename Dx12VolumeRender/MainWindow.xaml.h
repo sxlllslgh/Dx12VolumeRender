@@ -20,6 +20,8 @@ namespace winrt::Dx12VolumeRender::implementation {
         // ViewModel for the Navigation view
         Dx12VolumeRender::NavigationCategoryViewModel mainWindowNavigationCategoryViewModel;
 
+        winrt::hstring activeItem;
+
         // System backdrop related functions to apply Mica or Acrylic effects.
         void EnsureDispatcherQueue();
         void SetupSystemBackdropConfiguration();

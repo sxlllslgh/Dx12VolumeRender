@@ -27,7 +27,7 @@ namespace winrt::Dx12VolumeRender::implementation {
 
     public:
         VolumeRenderPage();
-        ~VolumeRenderPage() { renderLoopWorker.Cancel(); }
+        ~VolumeRenderPage();
         void OnPageLoaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         Windows::Foundation::IAsyncAction OnReadFileClick(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
     };

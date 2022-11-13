@@ -31,6 +31,10 @@ namespace winrt::Dx12VolumeRender::implementation {
         deviceResources = std::make_shared<MyDirectX12::DeviceResources>(hostWindow);
         deviceResources->CreateDeviceResources();
     }
+
+    VolumeRenderPage::~VolumeRenderPage() {
+        renderLoopWorker.Cancel();
+    }
 }
 
 void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::OnPageLoaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {

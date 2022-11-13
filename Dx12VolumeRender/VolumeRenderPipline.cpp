@@ -62,9 +62,9 @@ void MyDirectX12::VolumeRenderPipline::Clear() {
 
 inline const FLOAT* MyDirectX12::VolumeRenderPipline::ConvertColorToArray(winrt::Windows::UI::Color const& color) {
     auto array = new FLOAT[4];
-    array[0] = color.R;
-    array[1] = color.G;
-    array[2] = color.B;
-    array[3] = color.A;
+    array[0] = color.R / 255.0f;
+    array[1] = color.G / 255.0f;
+    array[2] = color.B / 255.0f;
+    array[3] = color.A / 255.0f;
     return array;
 }

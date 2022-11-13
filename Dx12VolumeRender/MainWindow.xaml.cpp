@@ -90,7 +90,7 @@ void winrt::Dx12VolumeRender::implementation::MainWindow::mainNavigationLoaded(w
 }
 
 void winrt::Dx12VolumeRender::implementation::MainWindow::mainNavigationItemInvoked(winrt::Microsoft::UI::Xaml::Controls::NavigationView const& sender, winrt::Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs const& args) {
-    auto activeItem = args.InvokedItem().as<hstring>();
+    activeItem = args.InvokedItem().as<hstring>();
     if (activeItem == L"Volume Render") {
         contentFrame().Navigate(xaml_typename<VolumeRenderPage>());
     }
