@@ -49,4 +49,5 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <wil/cppwinrt_helpers.h>
 #include <microsoft.ui.xaml.media.dxinterop.h>
-#include <windows.graphics.display.interop.h>
+
+//#include <windows.graphics.display.interop.h>

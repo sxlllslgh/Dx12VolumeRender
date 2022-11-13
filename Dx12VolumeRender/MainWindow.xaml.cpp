@@ -23,20 +23,6 @@ namespace winrt::Dx12VolumeRender::implementation {
             micaController.AddSystemBackdropTarget(try_as<Microsoft::UI::Composition::ICompositionSupportsSystemBackdrop>());
         }
 
-        /*EnsureDispatcherQueue();
-        if (dispatcherQueueController) {
-            compositor = Windows::UI::Composition::Compositor();
-        }
-
-        if (compositor) {
-            auto micaController = Microsoft::UI::Composition::SystemBackdrops::MicaController();
-            auto acrylicController = Microsoft::UI::Composition::SystemBackdrops::DesktopAcrylicController();
-            auto interop = compositor.as<ABI::Windows::UI::Composition::Desktop::ICompositorDesktopInterop>();
-            winrt::check_hresult(interop->CreateDesktopWindowTarget(nativeWindow, true, reinterpret_cast<ABI::Windows::UI::Composition::Desktop::IDesktopWindowTarget**>(winrt::put_abi(target))));
-            target.Root(compositor.CreateContainerVisual());
-            isMicaSupported = micaController.SetTarget(Microsoft::UI::WindowId{ reinterpret_cast<uint64_t>(nativeWindow) }, target);
-        }
-        UpdateWindow(nativeWindow);*/
         mainWindowNavigationCategoryViewModel.NavigationCategories().Append(make<Dx12VolumeRender::implementation::NavigationCategory>(hstring{ L"Volume Render" }, hstring{ L"体渲染" }, hstring{ L"World" }));
     }
 
