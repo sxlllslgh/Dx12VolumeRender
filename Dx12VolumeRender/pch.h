@@ -28,6 +28,7 @@
 #include <winrt/Windows.Graphics.Display.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Storage.Pickers.h>
+#include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.System.Threading.h>
 #include <winrt/Windows.UI.Core.h>
 #include <Windows.UI.Composition.Interop.h>
@@ -49,5 +50,4 @@
 #include <winrt/Microsoft.UI.Dispatching.h>
 #include <wil/cppwinrt_helpers.h>
 #include <microsoft.ui.xaml.media.dxinterop.h>
-
 //#include <windows.graphics.display.interop.h>

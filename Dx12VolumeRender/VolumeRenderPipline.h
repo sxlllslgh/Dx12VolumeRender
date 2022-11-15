@@ -4,6 +4,7 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.hpp"
+#include "VolumeData.hpp"
 
 namespace MyDirectX12 {
     class VolumeRenderPipline {
@@ -21,11 +22,15 @@ namespace MyDirectX12 {
         void Render(StepTimer const& timer);
         void Clear();
 
+        void LoadVolumeData(VolumeData const& givenData) {}
+
     private:
         inline const FLOAT* ConvertColorToArray(winrt::Windows::UI::Color const& color);
 
         std::shared_ptr<DeviceResources> deviceResources;
 
         StepTimer timer;
+
+        VolumeData volumeData;
     };
 }

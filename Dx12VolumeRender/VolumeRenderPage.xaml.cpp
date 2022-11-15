@@ -29,7 +29,11 @@ namespace winrt::Dx12VolumeRender::implementation {
         });*/
         
         deviceResources = std::make_shared<MyDirectX12::DeviceResources>(hostWindow);
+        deviceResources->RegisterDeviceNotify(this);
         deviceResources->CreateDeviceResources();
+
+        timer.SetFixedTimeStep(true);
+        timer.SetTargetElapsedSeconds(1.0 / 60);
     }
 
     VolumeRenderPage::~VolumeRenderPage() {
@@ -38,36 +42,32 @@ namespace winrt::Dx12VolumeRender::implementation {
 }
 
 void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::OnPageLoaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
-    deviceResources->SetSwapChainPanel(displayArea(), XamlRoot().RasterizationScale());
+    deviceResources->SetSwapChainPanel(renderArea(), XamlRoot().RasterizationScale());
     deviceResources->ValidateDevice();
     renderPipeline = std::make_unique<MyDirectX12::VolumeRenderPipline>(deviceResources);
     StartRenderLoop();
 }
 
-void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::Update() {
-    timer.Tick([&]() {
-        renderPipeline->Update(timer);
-    });
-}
-
-void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::Render() {
-    renderPipeline->Render(timer);
-}
-
-winrt::Windows::Foundation::IAsyncAction winrt::Dx12VolumeRender::implementation::VolumeRenderPage::StartRenderLoop() {
+void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::StartRenderLoop() {
     if (renderLoopWorker != nullptr && renderLoopWorker.Status() == winrt::Windows::Foundation::AsyncStatus::Started) {
-        co_return;
+        return;
     }
 
     winrt::Windows::System::Threading::WorkItemHandler workItemHandler = winrt::Windows::System::Threading::WorkItemHandler([this](winrt::Windows::Foundation::IAsyncAction action) {
         while (action.Status() == winrt::Windows::Foundation::AsyncStatus::Started) {
             Concurrency::critical_section::scoped_lock lock(criticalSection);
-            Update();
-            Render();
+            timer.Tick([&]() {
+                renderPipeline->Update(timer);
+            });
+            renderPipeline->Render(timer);
         }
     });
     renderLoopWorker = winrt::Windows::System::Threading::ThreadPool::RunAsync(workItemHandler, winrt::Windows::System::Threading::WorkItemPriority::High, winrt::Windows::System::Threading::WorkItemOptions::TimeSliced);
 }
+
+void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::OnDeviceLost() {}
+
+void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::OnDeviceRestored() {}
 
 void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::OnDisplayContentsInvalidated(winrt::Windows::Graphics::Display::DisplayInformation const&, winrt::Windows::Foundation::IInspectable const&) {
     Concurrency::critical_section::scoped_lock lock(criticalSection);
@@ -83,16 +83,34 @@ Windows::Foundation::IAsyncAction winrt::Dx12VolumeRender::implementation::Volum
     selectedFile = co_await picker.PickSingleFileAsync();
 
     if (selectedFile != nullptr) {
-        auto fileBuffer = co_await Windows::Storage::FileIO::ReadBufferAsync(selectedFile);
-        auto fileBytes = fileBuffer.data();
-        VolumeData volumeData;
-        volumeData.readFromBytes<int>(&fileBytes, volumeData.frameCount);
-        volumeData.readFromBytes<int>(&fileBytes, volumeData.channels);
-        volumeData.readFromBytes<int>(&fileBytes, volumeData.frameWidth);
-        volumeData.readFromBytes<int>(&fileBytes, volumeData.frameHeight);
-        volumeData.readFromBytes<double>(&fileBytes, volumeData.widthPerPixel);
-        volumeData.readFromBytes<double>(&fileBytes, volumeData.heightPerPixel);
-        volumeData.readMatrix4dFromBytes(&fileBytes, volumeData.matItoF);
-        
+        auto fileStream = co_await selectedFile.OpenSequentialReadAsync();
+        /*fileStream.
+        auto fileBuffer = co_await Windows::Storage::FileIO::ReadBufferAsync(selectedFile);*/
+        Windows::Storage::Streams::DataReader dataReader(fileStream);
+        //dataReader.FromBuffer(fileBuffer);
+        //HRESULT hr = unknown->QueryInterface(_uuidof(winrt::Windows::Storage::Streams::IBufferByteAccess), &bufferByteAccess);*/
+        //byte* fileBytes = nullptr;
+        //bufferByteAccess->Buffer(&fileBytes);
+        auto volumeData = VolumeData::loadFileFromReader(dataReader);
+        renderPipeline->LoadVolumeData(volumeData);
+    }
+}
+
+void winrt::Dx12VolumeRender::implementation::VolumeRenderPage::OnRenderAreaSizeChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::SizeChangedEventArgs const& e) {
+    if (IsLoaded() && e.NewSize() != deviceResources->GetOutputSize()) {
+        Concurrency::critical_section::scoped_lock lock(criticalSection);
+        //deviceResources->SetSwapChainPanel(renderArea(), XamlRoot().RasterizationScale());
+        //renderLoopWorker.Cancel();
+        //renderLoopWorker.Completed([=, strongThis = get_strong()](Windows::Foundation::IAsyncAction const& asyncInfo, Windows::Foundation::AsyncStatus const& asyncStatus) {
+        //    if (asyncStatus == Windows::Foundation::AsyncStatus::Canceled) {
+        //        return;
+        //    }
+        //    renderPipeline = std::make_unique<MyDirectX12::VolumeRenderPipline>(deviceResources);
+        //    StartRenderLoop();
+        //});
+        //StartRenderLoop();
+        deviceResources->ChangeSwapChainSize(e.NewSize());
+        timer.ResetElapsedTime();
+        //deviceResources->CreateWindowSizeDependentResources();
     }
 }

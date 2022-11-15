@@ -70,14 +70,18 @@ Microsoft::UI::Composition::SystemBackdrops::SystemBackdropTheme winrt::Dx12Volu
     }
 }
 
-void winrt::Dx12VolumeRender::implementation::MainWindow::mainNavigationLoaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
+void winrt::Dx12VolumeRender::implementation::MainWindow::OnMainNavigationLoaded(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
     //mainNavigation().SelectedItem(mainNavigation().MenuItems().First());
     //mainNavigation().SelectedItem(mainNavigation().MenuItemsSource().as<Windows::Foundation::Collections::IObservableVector<Dx12VolumeRender::NavigationCategory>>().First());
 }
 
-void winrt::Dx12VolumeRender::implementation::MainWindow::mainNavigationItemInvoked(winrt::Microsoft::UI::Xaml::Controls::NavigationView const& sender, winrt::Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs const& args) {
+void winrt::Dx12VolumeRender::implementation::MainWindow::OnMainNavigationItemInvoked(winrt::Microsoft::UI::Xaml::Controls::NavigationView const& sender, winrt::Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs const& args) {
     activeItem = args.InvokedItem().as<hstring>();
     if (activeItem == L"Volume Render") {
         contentFrame().Navigate(xaml_typename<VolumeRenderPage>());
     }
+}
+
+void winrt::Dx12VolumeRender::implementation::MainWindow::OnWindowClosed(winrt::Windows::Foundation::IInspectable const&, winrt::Microsoft::UI::Xaml::WindowEventArgs const&) {
+    micaController = nullptr;
 }

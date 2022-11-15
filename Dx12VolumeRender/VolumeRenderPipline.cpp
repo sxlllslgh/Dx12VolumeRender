@@ -56,7 +56,7 @@ void MyDirectX12::VolumeRenderPipline::Clear() {
     auto const scissorRect = deviceResources->GetScissorRect();
     commandList->RSSetViewports(1, &viewport);
     commandList->RSSetScissorRects(1, &scissorRect);
-
+    
     PIXEndEvent(commandList);
 }
 

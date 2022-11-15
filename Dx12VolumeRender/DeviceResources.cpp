@@ -184,7 +184,8 @@ void MyDirectX12::DeviceResources::CreateDeviceResources() {
     HRESULT hr = d3dDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels));
     if (hr == S_OK) {
         d3dFeatureLevel = featLevels.MaxSupportedFeatureLevel;
-    } else {
+    }
+    else {
         d3dFeatureLevel = d3dMinFeatureLevel;
     }
 
@@ -256,7 +257,7 @@ void MyDirectX12::DeviceResources::SetSwapChainPanel(winrt::Microsoft::UI::Xaml:
 
 void MyDirectX12::DeviceResources::CreateWindowSizeDependentResources() {
     // Wait until all previous GPU work is complete.
-    WaitForGpu();
+    //WaitForGpu();
 
     // Release resources that are tied to the swap chain and update fence values.
     for (UINT n = 0; n < backBufferCount; n++) {
@@ -291,8 +292,7 @@ void MyDirectX12::DeviceResources::CreateWindowSizeDependentResources() {
         if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 #ifdef _DEBUG
             char buff[64] = {};
-            sprintf_s(buff, "Device Lost on ResizeBuffers: Reason code 0x%08X\n",
-                static_cast<unsigned int>((hr == DXGI_ERROR_DEVICE_REMOVED) ? d3dDevice->GetDeviceRemovedReason() : hr));
+            sprintf_s(buff, "Device Lost on ResizeBuffers: Reason code 0x%08X\n", static_cast<unsigned int>((hr == DXGI_ERROR_DEVICE_REMOVED) ? d3dDevice->GetDeviceRemovedReason() : hr));
             OutputDebugStringA(buff);
 #endif
             // If the device was removed for any reason, a new device and swap chain will need to be created.
@@ -301,10 +301,12 @@ void MyDirectX12::DeviceResources::CreateWindowSizeDependentResources() {
             // Everything is set up now. Do not continue execution of this method. HandleDeviceLost will reenter this method
             // and correctly set up the new device.
             return;
-        } else {
+        }
+        else {
             ThrowIfFailed(hr);
         }
-    } else {
+    }
+    else {
         // Create a descriptor for the swap chain.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
         swapChainDesc.Width = d3dRenderTargetSize.Width;
@@ -328,109 +330,107 @@ void MyDirectX12::DeviceResources::CreateWindowSizeDependentResources() {
             winrt::com_ptr<ISwapChainPanelNative> panelNative;
             ThrowIfFailed(winrt::get_unknown(swapChainPanel)->QueryInterface(__uuidof(panelNative), panelNative.put_void()));
             ThrowIfFailed(panelNative->SetSwapChain(swapChain.get()));
-        });
+            });
 
         /*winrt::com_ptr<IDXGIDevice3> dxgiDevice;
         dxgiDevice = d3dDevice.try_as<IDXGIDevice3>();
 
         ThrowIfFailed(dxgiDevice->SetMaximumFrameLatency(1));*/
-
-        // Handle color space settings for HDR
-        UpdateColorSpace();
-
-        // Set the proper orientation for the swap chain, and generate
-        // matrix transformations for rendering to the rotated swap chain.
-        switch (rotation) {
-        default:
-        case DXGI_MODE_ROTATION_IDENTITY:
-            orientationTransform3D = ScreenRotation::Rotation0;
-            break;
-
-        case DXGI_MODE_ROTATION_ROTATE90:
-            orientationTransform3D = ScreenRotation::Rotation270;
-            break;
-
-        case DXGI_MODE_ROTATION_ROTATE180:
-            orientationTransform3D = ScreenRotation::Rotation180;
-            break;
-
-        case DXGI_MODE_ROTATION_ROTATE270:
-            orientationTransform3D = ScreenRotation::Rotation90;
-            break;
-        }
-
-        ThrowIfFailed(swapChain->SetRotation(rotation));
-
-        // Obtain the back buffers for this window which will be the final render targets
-        // and create render target views for each of them.
-        for (UINT n = 0; n < backBufferCount; n++) {
-            ThrowIfFailed(swapChain->GetBuffer(n, __uuidof(renderTargets[n]), renderTargets[n].put_void()));
-
-            wchar_t name[25] = {};
-            swprintf_s(name, L"Render target %u", n);
-            renderTargets[n]->SetName(name);
-
-            D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-            rtvDesc.Format = backBufferFormat;
-            rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-
-            const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvDescriptor(
-                rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-                static_cast<INT>(n), rtvDescriptorSize);
-            d3dDevice->CreateRenderTargetView(renderTargets[n].get(), &rtvDesc, rtvDescriptor);
-        }
-
-        // Reset the index to the current back buffer.
-        backBufferIndex = swapChain->GetCurrentBackBufferIndex();
-
-        if (depthBufferFormat != DXGI_FORMAT_UNKNOWN) {
-            // Allocate a 2-D surface as the depth/stencil buffer and create a depth/stencil view
-            // on this surface.
-            const CD3DX12_HEAP_PROPERTIES depthHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
-
-            D3D12_RESOURCE_DESC depthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-                depthBufferFormat,
-                d3dRenderTargetSize.Width,
-                d3dRenderTargetSize.Height,
-                1, // This depth stencil view has only one texture.
-                1  // Use a single mipmap level.
-            );
-            depthStencilDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-            D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
-            depthOptimizedClearValue.Format = depthBufferFormat;
-            depthOptimizedClearValue.DepthStencil.Depth = (options & reverseDepth).all() ? 0.0f : 1.0f;
-            depthOptimizedClearValue.DepthStencil.Stencil = 0;
-
-            ThrowIfFailed(d3dDevice->CreateCommittedResource(
-                &depthHeapProperties,
-                D3D12_HEAP_FLAG_NONE,
-                &depthStencilDesc,
-                D3D12_RESOURCE_STATE_DEPTH_WRITE,
-                &depthOptimizedClearValue,
-                __uuidof(depthStencil), depthStencil.put_void()
-            ));
-
-            depthStencil->SetName(L"Depth stencil");
-
-            D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-            dsvDesc.Format = depthBufferFormat;
-            dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-
-            d3dDevice->CreateDepthStencilView(depthStencil.get(), &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-        }
-
-        // Set the 3D rendering viewport and scissor rectangle to target the entire window.
-        screenViewport.TopLeftX = screenViewport.TopLeftY = 0.f;
-        screenViewport.Width = d3dRenderTargetSize.Width;
-        screenViewport.Height = d3dRenderTargetSize.Height;
-        screenViewport.MinDepth = D3D12_MIN_DEPTH;
-        screenViewport.MaxDepth = D3D12_MAX_DEPTH;
-
-        scissorRect.left = scissorRect.top = 0;
-        scissorRect.right = static_cast<LONG>(d3dRenderTargetSize.Width);
-        scissorRect.bottom = static_cast<LONG>(d3dRenderTargetSize.Height);
     }
+
+    // Handle color space settings for HDR
+    UpdateColorSpace();
+
+    // Set the proper orientation for the swap chain, and generate
+    // matrix transformations for rendering to the rotated swap chain.
+    switch (rotation) {
+    default:
+    case DXGI_MODE_ROTATION_IDENTITY:
+        orientationTransform3D = ScreenRotation::Rotation0;
+        break;
+
+    case DXGI_MODE_ROTATION_ROTATE90:
+        orientationTransform3D = ScreenRotation::Rotation270;
+        break;
+
+    case DXGI_MODE_ROTATION_ROTATE180:
+        orientationTransform3D = ScreenRotation::Rotation180;
+        break;
+
+    case DXGI_MODE_ROTATION_ROTATE270:
+        orientationTransform3D = ScreenRotation::Rotation90;
+        break;
+    }
+
+    ThrowIfFailed(swapChain->SetRotation(rotation));
+
+    // Obtain the back buffers for this window which will be the final render targets
+    // and create render target views for each of them.
+    for (UINT n = 0; n < backBufferCount; n++) {
+        ThrowIfFailed(swapChain->GetBuffer(n, __uuidof(renderTargets[n]), renderTargets[n].put_void()));
+
+        wchar_t name[25] = {};
+        swprintf_s(name, L"Render target %u", n);
+        renderTargets[n]->SetName(name);
+
+        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+        rtvDesc.Format = backBufferFormat;
+        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+        const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvDescriptor(rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), static_cast<INT>(n), rtvDescriptorSize);
+        d3dDevice->CreateRenderTargetView(renderTargets[n].get(), &rtvDesc, rtvDescriptor);
+    }
+
+    // Reset the index to the current back buffer.
+    backBufferIndex = swapChain->GetCurrentBackBufferIndex();
+
+    if (depthBufferFormat != DXGI_FORMAT_UNKNOWN) {
+        // Allocate a 2-D surface as the depth/stencil buffer and create a depth/stencil view
+        // on this surface.
+        const CD3DX12_HEAP_PROPERTIES depthHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+
+        D3D12_RESOURCE_DESC depthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+            depthBufferFormat,
+            d3dRenderTargetSize.Width,
+            d3dRenderTargetSize.Height,
+            1, // This depth stencil view has only one texture.
+            1  // Use a single mipmap level.
+        );
+        depthStencilDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+        D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+        depthOptimizedClearValue.Format = depthBufferFormat;
+        depthOptimizedClearValue.DepthStencil.Depth = (options & reverseDepth).all() ? 0.0f : 1.0f;
+        depthOptimizedClearValue.DepthStencil.Stencil = 0;
+
+        ThrowIfFailed(d3dDevice->CreateCommittedResource(
+            &depthHeapProperties,
+            D3D12_HEAP_FLAG_NONE,
+            &depthStencilDesc,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &depthOptimizedClearValue,
+            __uuidof(depthStencil), depthStencil.put_void()
+        ));
+
+        depthStencil->SetName(L"Depth stencil");
+
+        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+        dsvDesc.Format = depthBufferFormat;
+        dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+
+        d3dDevice->CreateDepthStencilView(depthStencil.get(), &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+    }
+
+    // Set the 3D rendering viewport and scissor rectangle to target the entire window.
+    screenViewport.TopLeftX = screenViewport.TopLeftY = 0.f;
+    screenViewport.Width = d3dRenderTargetSize.Width;
+    screenViewport.Height = d3dRenderTargetSize.Height;
+    screenViewport.MinDepth = D3D12_MIN_DEPTH;
+    screenViewport.MaxDepth = D3D12_MAX_DEPTH;
+
+    scissorRect.left = scissorRect.top = 0;
+    scissorRect.right = static_cast<LONG>(d3dRenderTargetSize.Width);
+    scissorRect.bottom = static_cast<LONG>(d3dRenderTargetSize.Height);
 }
 
 void MyDirectX12::DeviceResources::ValidateDevice() {
@@ -527,12 +527,13 @@ void MyDirectX12::DeviceResources::Present(D3D12_RESOURCE_STATES beforeState) {
     ThrowIfFailed(commandList->Close());
     ID3D12CommandList* ppCommandLists[] = { commandList.get() };
     commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-    
+
     HRESULT hr;
     if ((options & allowTearing).all()) {
         // Recommended to always use tearing if supported when using a sync interval of 0.
         hr = swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
-    } else {
+    }
+    else {
         // The first argument instructs DXGI to block until VSync, putting the application to sleep until the next VSync. This ensures we don't waste any cycles rendering frames that will never be displayed to the screen.
         hr = swapChain->Present(1, 0);
     }
@@ -545,7 +546,8 @@ void MyDirectX12::DeviceResources::Present(D3D12_RESOURCE_STATES beforeState) {
         OutputDebugStringA(buff);
 #endif
         HandleDeviceLost();
-    } else {
+    }
+    else {
         ThrowIfFailed(hr);
 
         MoveToNextFrame();
@@ -654,6 +656,11 @@ void MyDirectX12::DeviceResources::UpdateColorSpace() {
     }
 }
 
+void MyDirectX12::DeviceResources::ChangeSwapChainSize(winrt::Windows::Foundation::Size const& newSize) {
+    logicalSize = newSize;
+    CreateWindowSizeDependentResources();
+}
+
 void MyDirectX12::DeviceResources::MoveToNextFrame() {
     // Schedule a Signal command in the queue.
     const UINT64 currentFenceValue = fenceValues[backBufferIndex];
@@ -665,7 +672,7 @@ void MyDirectX12::DeviceResources::MoveToNextFrame() {
     // If the next frame is not ready to be rendered yet, wait until it is ready.
     if (fence->GetCompletedValue() < fenceValues[backBufferIndex]) {
         ThrowIfFailed(fence->SetEventOnCompletion(fenceValues[backBufferIndex], &fenceEvent));
-        std::ignore = WaitForSingleObjectEx(&fenceEvent, INFINITE, FALSE);
+        WaitForSingleObjectEx(&fenceEvent, INFINITE, FALSE);
     }
 
     // Set the fence value for the next frame.
@@ -792,4 +799,16 @@ void MyDirectX12::DeviceResources::UpdateRenderTargetSize() {
 
     outputSize.Width = std::max(outputSize.Width, 1.0f);
     outputSize.Height = std::max(outputSize.Height, 1.0f);
+}
+
+void MyDirectX12::DeviceResources::FlushGpu() {
+    for (int i = 0; i < backBufferCount; i++) {
+        uint64_t fenceValueForSignal = ++fenceValues[i];
+        commandQueue->Signal(fence.get(), fenceValueForSignal);
+        if (fence->GetCompletedValue() < fenceValues[i]) {
+            fence->SetEventOnCompletion(fenceValueForSignal, &fenceEvent);
+            WaitForSingleObject(&fenceEvent, INFINITE);
+        }
+    }
+    backBufferIndex = 0;
 }
