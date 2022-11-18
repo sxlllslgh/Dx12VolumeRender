@@ -91,8 +91,8 @@ Windows::Foundation::IAsyncAction winrt::Dx12VolumeRender::implementation::Volum
         //HRESULT hr = unknown->QueryInterface(_uuidof(winrt::Windows::Storage::Streams::IBufferByteAccess), &bufferByteAccess);*/
         //byte* fileBytes = nullptr;
         //bufferByteAccess->Buffer(&fileBytes);
-        auto volumeData = VolumeData::loadFileFromReader(dataReader);
-        renderPipeline->LoadVolumeData(volumeData);
+        auto volumeData{ VolumeData::loadFileFromReader(dataReader) };
+        renderPipeline->LoadVolumeData(volumeData.get());
     }
 }
 

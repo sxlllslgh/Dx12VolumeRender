@@ -18,6 +18,8 @@
 #include <pix.h>
 #include "d3dx12.h"
 
+#include <ppltasks.h>
+
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif
